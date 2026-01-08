@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Assistant Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+body {
+  background: linear-gradient(135deg, #0f172a, #020617);
+}
+.glass {
+  background: rgba(15,23,42,0.65);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.highlight {
+  background: linear-gradient(135deg,#22c55e,#0ea5e9);
+  color: white;
+}
+input::placeholder {
+  color: #94a3b8;
+}
+</style>
+</head>
+
+<body class="min-h-screen text-slate-200">
+
+<header class="pt-8 pb-6 px-8 flex items-center justify-between">
+
+  <!-- KIRI -->
+  <div class="space-y-4 max-w-xl">
+    <h1 id="greeting" class="text-3xl font-semibold"></h1>
+
+    <form id="searchForm">
+      <div class="relative mb-12">
+        <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input id="searchInput"
+          type="text"
+          placeholder="Cari informasi.."
+          class="w-full pl-11 pr-4 py-3 rounded-xl glass outline-none focus:ring-2 focus:ring-sky-500"/>
+      </div>
+    </form>
+
+    <p class="text-slate-400  text-sm">Personal Assistant Dashboard</p>
+  </div>
+
+  <!-- KANAN (AVATAR) -->
+  <div class="flex items-center">
+    <img
+      src="IMG_20251011_182214.jpg"
+      alt="Avatar"
+      class="w-24 h-24 rounded-full border border-slate-600 object-cover"
+    />
+  </div>
+
+</header>
+
+<main class="px-8 pb-10 max-w-7xl mx-auto space-y-6">
+
+<section class="grid grid-cols-12 gap-6">
+
+<div class="col-span-3 glass rounded-2xl p-5">
+<h3 class="flex items-center gap-2 text-orange-400 mb-2">
+<i class="ph ph-cloud-sun"></i> Cuaca
+</h3>
+<div id="weather">Memuat...</div>
+</div>
+
+<div class="col-span-3 glass rounded-2xl p-5 text-center">
+<h3 class="flex justify-center items-center gap-2 text-sky-400 mb-2">
+<i class="ph ph-clock"></i> Waktu
+</h3>
+<p id="clock" class="text-4xl font-semibold"></p>
+<p id="date" class="text-sm text-slate-400 mt-1"></p>
+</div>
+
+<div class="col-span-6 glass rounded-2xl p-5 space-y-3">
+<h3 class="flex items-center gap-2 text-emerald-400">
+<i class="ph ph-heartbeat"></i> Health Care
+</h3>
+
+<div id="mainSuggestion" class="rounded-xl p-4 highlight font-medium">
+Memuat...
+</div>
+
+<ul id="suggestions" class="text-sm space-y-2 list-disc list-inside"></ul>
+</div>
+
+</section>
+
+<section class="grid grid-cols-12 gap-6">
+
+<div class="col-span-6 glass rounded-2xl p-5">
+<h3 class="flex items-center gap-2 text-sky-400 mb-3">
+<i class="ph ph-info"></i> Sistem
+</h3>
+<ul class="text-sm space-y-2">
+<li>🌐 Bahasa: <span id="language"></span></li>
+<li>🖥 Resolusi: <span id="screen"></span></li>
+<li>💻 Platform: <span id="platform"></span></li>
+<li>🧠 CPU: <span id="cpu"></span></li>
+<li>💾 RAM: <span id="memory"></span></li>
+<li>🌍 Zona Waktu: <span id="timezone"></span></li>
+<li>🔋 Baterai: <span id="battery"></span></li>
+<li>📡 Koneksi: <span id="network"></span></li>
+</ul>
+</div>
+
+<div class="col-span-6 glass rounded-2xl p-5">
+<h3 class="text-emerald-400 mb-2">Status</h3>
+<p id="online" class="text-2xl font-semibold"></p>
+</div>
+
+</section>
+
+</main>
+
+<script>
+// GREETING
+const hour = new Date().getHours();
+const greet =
+hour < 11 ? "Selamat Pagi" :
+hour < 15 ? "Selamat Siang" :
+hour < 18 ? "Selamat Sore" : "Selamat Malam";
+greeting.textContent = `${greet}, Guntur`;
+
+// CLOCK
+function updateClock(){
+clock.textContent = new Date().toLocaleTimeString("id-ID");
+date.textContent = new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"});
+}
+updateClock();
+setInterval(updateClock,1000);
+
+// SEARCH (QUERY BASED)
+searchForm.onsubmit = e => {
+e.preventDefault();
+const q = searchInput.value.trim();
+if(!q) return;
+
+let query = q;
+if(q.includes("sakit") || q.includes("sehat"))
+query = "tips kesehatan " + q;
+
+window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+};
+
+// SYSTEM INFO
+language.textContent = navigator.language;
+screen.textContent = `${screen.width} × ${screen.height}`;
+platform.textContent = navigator.platform;
+cpu.textContent = navigator.hardwareConcurrency + " Core";
+memory.textContent = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "-";
+timezone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+online.textContent = navigator.onLine ? "Online" : "Offline";
+online.classList.add(navigator.onLine ? "text-green-400":"text-red-400");
+
+if(navigator.connection){
+network.textContent = navigator.connection.effectiveType.toUpperCase();
+}
+
+navigator.getBattery?.().then(b=>{
+battery.textContent = Math.round(b.level*100)+"%"+(b.charging?" ⚡":"");
+});
+
+// HEALTH CARE SUGGESTIONS
+function generateHealthCare(w){
+let main="";
+let list=[];
+
+if(w.temperature >= 33){
+main = "Panas tinggi — hidrasi & kurangi aktivitas berat";
+list.push("Minum air 2–3 liter");
+list.push("Hindari matahari siang");
+}
+else if(w.temperature <= 23){
+main = "Udara dingin — jaga suhu tubuh";
+list.push("Gunakan pakaian hangat");
+}
+else{
+main = "Kondisi normal — jaga ritme tubuh";
+}
+
+if(w.windspeed > 20) list.push("Hindari debu & polusi");
+if(!navigator.onLine) list.push("Offline — istirahat mata & tubuh");
+if(hour >= 22) list.push("Waktu tidur ideal");
+
+mainSuggestion.textContent = main;
+suggestions.innerHTML = "";
+list.forEach(t=>{
+const li = document.createElement("li");
+li.textContent = t;
+suggestions.appendChild(li);
+});
+}
+
+// WEATHER
+fetch("https://api.open-meteo.com/v1/forecast?latitude=-7.7972&longitude=110.3688&current_weather=true")
+.then(r=>r.json())
+.then(d=>{
+const w=d.current_weather;
+weather.innerHTML=`
+<p class="text-3xl font-semibold">${w.temperature}°C</p>
+<p class="text-sm text-slate-400">Angin ${w.windspeed} km/jam</p>`;
+generateHealthCare(w);
+});
+</script>
+
+</body>
+</html>
